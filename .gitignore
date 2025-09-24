@@ -1,0 +1,21 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+venv/
+*.log
+uv.lock
+
+.env
+config.yaml
+*.jpg
+
+# vue
+
+node_modules/

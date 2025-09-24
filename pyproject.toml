@@ -1,0 +1,30 @@
+[project]
+name = "braintree"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi~=0.115.12",
+    "langchain~=0.3.25",
+    "langchain-community~=0.3.24",
+    "langchain-core~=0.3.59",
+    "langchain-experimental~=0.3.4",
+    "langchain-openai~=0.3.5",
+    "langgraph~=0.3.31",
+    "langchain-mcp-adapters~=0.1.8",
+    "openai==1.75.0",
+    "uvicorn~=0.37.0",
+    "python-dotenv>=1.1.1",
+    "pytest>=8.4.2",
+]
+
+[tool.setuptools.packages.find]
+where = ["backend/src"] 
+
+[tool.setuptools.package-dir]
+"" = "backend/src" 
+
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
