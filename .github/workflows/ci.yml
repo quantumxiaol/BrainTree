@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v2
+
+      - name: Setup virtual environment
+        run: |
+          uv venv --python 3.12
+          source .venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          source .venv/bin/activate
+          uv sync
+
+      - name: Generate .env from secrets
+        run: |
+          # 复制模板
+          cp .env.template .env
+          # 替换 API Key
+          sed -i "s|your_openai_api_key_here|${{ secrets.OPENAI_API_KEY }}|g" .env
+
+      - name: Start backend server
+        run: |
+          source .venv/bin/activate
+          uv run uvicorn backend.src.main:app --host 0.0.0.0 --port 8000 &
+          sleep 10
+
+      - name: Run API tests
+        run: |
+          source .venv/bin/activate
+          uv run python backend/src/tests/request_test.py

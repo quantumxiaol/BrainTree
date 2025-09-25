@@ -19,6 +19,7 @@ curl -X POST http://localhost:8000/api/chat/stream \
 
 import requests
 import json
+import sys
 
 # API 地址
 BASE_URL = "http://localhost:8000"
@@ -31,17 +32,21 @@ def test_chat_sync():
         "context": []
     }
 
+    print(f"🔍 正在测试同步接口: {url}")
     try:
         response = requests.post(url, json=data, timeout=30)
-        response.raise_for_status()  # 检查 HTTP 错误
+        assert response.status_code == 200, f"HTTP {response.status_code}: {response.text}"
 
         result = response.json()
-        print("✅ 同步接口响应:")
-        print(result["answer"])
+        assert "answer" in result, "响应中缺少 'answer' 字段"
+        assert len(result["answer"]) > 0, "answer 为空"
+
+        print("✅ 同步接口测试通过！")
+        print("回答:", result["answer"])
         return result["answer"]
-    except requests.exceptions.RequestException as e:
-        print("❌ 同步接口请求失败:", e)
-        return None
+    except Exception as e:
+        print("❌ 同步接口测试失败:", str(e))
+        sys.exit(1)  # ← 关键：让脚本以失败退出
 
 def test_chat_stream():
     """测试流式接口 /api/chat/stream"""
@@ -51,29 +56,36 @@ def test_chat_stream():
         "context": []
     }
 
+    print(f"🔍 正在测试流式接口: {url}")
     try:
-        # 注意：stream=True 表示启用流式接收
         with requests.post(url, json=data, timeout=30, stream=True) as response:
-            response.raise_for_status()
+            assert response.status_code == 200, f"HTTP {response.status_code}: {response.text}"
 
-            print("✅ 流式接口响应:")
+            print("✅ 流式接口响应开始...")
             full_answer = ""
+            chunk_count = 0
 
-            # 逐行读取流式数据（chunk）
             for chunk in response.iter_lines(decode_unicode=True):
-                if chunk:  # 忽略空行
+                if chunk.strip():  # 非空 chunk
                     full_answer += chunk
-                    print(chunk, end="", flush=True)  # 实时打印，不换行
+                    print(chunk, end="", flush=True)
+                    chunk_count += 1
 
             print()  # 换行
+
+            # 验证流式响应是否有效
+            assert chunk_count > 0, "未收到任何数据流"
+            assert len(full_answer) > 10, "流式回答太短，可能不完整"
+
+            print("✅ 流式接口测试通过！")
             return full_answer
-    except requests.exceptions.RequestException as e:
-        print("❌ 流式接口请求失败:", e)
-        return None
+    except Exception as e:
+        print("❌ 流式接口测试失败:", str(e))
+        sys.exit(1)  # ← 关键：让脚本以失败退出
 
 
 if __name__ == "__main__":
-    print("🧪 开始测试 BrainTree API...\n")
+    print("开始测试 BrainTree API...\n")
     
     # 测试同步接口
     test_chat_sync()
@@ -82,3 +94,6 @@ if __name__ == "__main__":
     
     # 测试流式接口
     test_chat_stream()
+
+    print("\n 所有后端测试通过！")
+    sys.exit(0)
