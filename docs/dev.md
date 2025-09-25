@@ -2,7 +2,6 @@
 
 ## 分支管理规范
 
-1. 分支命名规则
 所有新功能或修改都必须在独立分支上进行开发，禁止直接在 main 或 master 分支上提交代码。
 
 新功能开发：以 feat/ 开头
@@ -15,7 +14,7 @@ Bug 修复：以 fix/ 开头（可关联 issue）
 
 示例：docs/update-readme
 
-## 开发流程
+## 🔧开发流程
 步骤 1：同步主分支
 在开始新功能前，确保你的本地 main 分支是最新的：
 
@@ -93,11 +92,13 @@ git push origin --delete feat/new-feature-name
 步骤 2：清理本地分支
 ```bash
 git checkout main
-git branch -d feat/new-feature-name    # 删除本地分支
-git fetch -p                         # 同步远程分支状态（清理已删除的远程分支引用）
+# 删除本地分支
+git branch -d feat/new-feature-name
+# 同步远程分支状态（清理已删除的远程分支引用）
+git fetch -p
 ```
 
-📚 示例流程
+## 📚 示例流程
 ```bash
 # 1. 更新主分支
 git checkout main
@@ -127,3 +128,42 @@ git checkout main
 git branch -d feat/user-profile-page
 git fetch -p
 ```
+
+## 关于提交
+
+一次commit到本地Git仓库后，如果改了一些小bug，typo，考虑撤销本地提交，重新提交。
+
+```bash
+# 撤销最近一次提交，但保留修改内容（进入暂存区）
+git reset --soft HEAD~1
+
+# 撤销最近一次提交，并将修改变为未暂存状态（文件保留在工作区）
+git reset --mixed HEAD~1  # 或 git reset HEAD~1
+
+# 彻底删除提交和修改（慎用！）
+git reset --hard HEAD~1
+```
+
+本地有多个提交，想合并成一个再推送
+
+使用交互式变基
+
+```bash
+# 查看最近两次提交，开始交互式变基
+git rebase -i HEAD~2
+```
+编辑器中出现
+```
+pick abc1234 第一次提交信息
+pick def5678 第二次提交信息
+```
+
+第二个 pick 改成 squash 或 s
+```
+pick abc1234 第一次提交信息
+squash def5678 第二次提交信息
+```
+
+保存退出后，Git 会提示你编辑合并后的提交信息。修改后保存，两个提交就合并为一个了。
+
+然后可以正常推送
