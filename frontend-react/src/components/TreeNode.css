@@ -1,0 +1,208 @@
+/* src/components/TreeNode.css */
+/* 为了模拟 scoped 样式，我们使用 .tree-node 作为顶级容器前缀 */
+.tree-node {
+  margin: 0.5rem 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
+  transition: box-shadow 0.2s;
+  position: relative;
+}
+
+.tree-node:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.node-header {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+
+.expand-icon {
+  color: #666;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.expand-icon-placeholder {
+  min-width: 1.5rem;
+  margin-right: 0.5rem;
+}
+
+.node-content {
+  flex: 1;
+  margin-right: 0.5rem;
+}
+
+.question, .answer {
+  margin: 0.25rem 0;
+  line-height: 1.5;
+  word-wrap: break-word;
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.question strong, .answer strong {
+  color: #2c3e50;
+  margin-right: 0.5rem;
+  display: inline-block;
+  min-width: 2rem;
+  vertical-align: top;
+  flex-shrink: 0;
+}
+
+/* 修复 Markdown 内容的对齐问题 */
+.markdown-wrapper {
+  flex: 1;
+  min-width: 0; /* 允许收缩 */
+}
+
+.question .markdown-wrapper,
+.answer .markdown-wrapper {
+  display: block;
+}
+
+.node-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.add-btn, .delete-btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.add-btn {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.add-btn:hover {
+  background: #0056b3;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: white;
+  border-color: #dc3545;
+}
+
+.delete-btn:hover {
+  background: #c82333;
+}
+
+.input-section {
+  padding: 0.75rem 1rem;
+  border-top: 1px solid #eee;
+  background: #fafafa;
+}
+
+.input-textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.input-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+.input-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.send-btn, .cancel-btn {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.send-btn {
+  background: #28a745;
+  color: white;
+  border-color: #28a745;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+  border-color: #6c757d;
+}
+
+.send-btn:hover:not(:disabled), .cancel-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.send-btn:disabled, .cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.children {
+  padding-left: 1rem;
+  border-left: 2px solid #e0e0e0;
+  margin-left: 0.5rem;
+}
+
+.children::before {
+  content: '';
+  position: absolute;
+  left: 0.5rem;
+  top: 0;
+  bottom: 0;
+  border-left: 2px solid #e0e0e0;
+  pointer-events: none;
+}
+
+.tree-node:first-child {
+  margin-top: 0;
+}
+
+.tree-node:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .tree-node {
+    margin: 0.25rem 0;
+  }
+
+  .node-header {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .input-section {
+    padding: 0.5rem 0.75rem;
+  }
+}
