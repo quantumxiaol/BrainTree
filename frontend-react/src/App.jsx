@@ -1,131 +1,193 @@
 // src/App.jsx
-import React, { useState, useRef, useCallback } from 'react';
-import TreeNode from './components/TreeNode';
-import { useConversation } from './stores/conversation'; // Import hook
-import './App.css'; // Import CSS
+import React, { useState, useCallback, useEffect } from 'react';
+import ReactFlow, {
+  Controls,
+  Background,
+  MiniMap,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
+  Position,
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useConversation } from './stores/conversation';
+import MindMapNode from './components/MindMapNode';
+import './App.css';
+
+// 定义自定义节点类型
+const nodeTypes = {
+  mindMapNode: MindMapNode,
+};
 
 function App() {
-  const { rootNodes, loading, addRootNodeWithQuestion, resetTree } = useConversation(); // Use hook - loading 现在来自 store
+  const { rootNodes, loading, addRootNodeWithQuestion, resetTree, addChildNode } = useConversation();
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
   const [debugMode, setDebugMode] = useState(false);
-  const [showAddRootInput, setShowAddRootInput] = useState(false); // 控制显示根节点输入框
-  const [newRootQuestion, setNewRootQuestion] = useState(''); // 存储根节点问题
-  const inputRef = useRef(null); // 引用输入框
 
-  // 定义 countNodes 函数
-  const countNodes = (node) => {
-    let count = 1; // Count the current node
-    if (node.children) {
-      node.children.forEach(child => count += countNodes(child)); // 递归调用
-    }
-    return count;
-  };
+  // 将树结构转换为 ReactFlow 元素 - 改进的思维导图布局
+  const convertToReactFlowElements = useCallback((nodes) => {
+    const newNodes = [];
+    const newEdges = [];
+    const nodeMap = new Map();
 
-  const storeState = {
-    nodesCount: rootNodes.reduce((count, node) => count + countNodes(node), 0),
-    rootNodesCount: rootNodes.length,
-    loading // Use the loading state from the store
-  };
+    const processNode = (node, parentId = null, depth = 0, x = 0, y = 0) => {
+      // 创建节点元素 - 使用自适应大小
+      const nodeElement = {
+        id: node.id,
+        type: 'mindMapNode',
+        position: { x, y },
+        data: { 
+          node, 
+          isRoot: parentId === null,
+          loading: loading && node.id === (rootNodes.find(rn => rn.id === node.id) ? node.id : null),
+          onAddChild: addChildNode,
+        },
+        sourcePosition: Position.Right,
+        targetPosition: Position.Left,
+        style: {
+          background: depth === 0 ? '#f0f8ff' : '#ffffff',
+          border: depth === 0 ? '3px solid #007bff' : '1px solid #e0e0e0',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          minWidth: '250px',
+          maxWidth: '400px',
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+        }
+      };
 
-  // 处理添加根节点输入框的显示/隐藏
-  const handleAddRootClick = useCallback(() => {
-    if (loading) return; // 如果 store 正在加载（比如正在添加节点），则不响应点击
-    setShowAddRootInput(true);
-    // Focus after state update
-    setTimeout(() => {
-      if (inputRef.current) {
-        inputRef.current.focus();
+      newNodes.push(nodeElement);
+      nodeMap.set(node.id, nodeElement);
+
+      // 如果有父节点，创建边
+      if (parentId) {
+        const edge = {
+          id: `edge-${parentId}-${node.id}`,
+          source: parentId,
+          target: node.id,
+          animated: true,
+          style: {
+            stroke: '#e0e0e0',
+            strokeWidth: 2,
+          },
+          type: 'smoothstep',
+        };
+        newEdges.push(edge);
       }
-    }, 0);
-  }, [loading]); // 依赖 loading 状态
 
-  // 处理发送根节点问题
-  const sendRootQuestion = useCallback(async () => {
-    if (!newRootQuestion.trim() || loading) return; // 防止重复提交或空输入，检查 store 的 loading
+      // 处理子节点 - 使用分层布局
+      if (node.children && node.children.length > 0) {
+        const childCount = node.children.length;
+        const spacingY = 150; // 垂直间距
+        const startY = y - (childCount - 1) * spacingY / 2; // 垂直居中排列
+        
+        node.children.forEach((child, index) => {
+          const childX = x + 300; // 水平距离
+          const childY = startY + index * spacingY;
+          
+          processNode(child, node.id, depth + 1, childX, childY);
+        });
+      }
+    };
 
-    try {
-      await addRootNodeWithQuestion(newRootQuestion); // 调用 store 中的 action
-      setNewRootQuestion(''); // 清空输入
-      setShowAddRootInput(false); // 隐藏输入框
-    } catch (error) {
-      console.error('[ERROR] 添加根节点失败:', error);
-      alert(`添加根节点失败: ${error.message || '未知错误'}`);
+    // 处理所有根节点 - 居中显示
+    nodes.forEach((rootNode, index) => {
+      const x = 0; // 中心节点在中间
+      const y = index * 200; // 如果有多个根节点，垂直排列
+      processNode(rootNode, null, 0, x, y);
+    });
+
+    return { nodes: newNodes, edges: newEdges };
+  }, [loading, rootNodes, addChildNode]);
+
+  // 初始化元素
+  useEffect(() => {
+    if (rootNodes.length > 0) {
+      const { nodes: newNodes, edges: newEdges } = convertToReactFlowElements(rootNodes);
+      setNodes(newNodes);
+      setEdges(newEdges);
     }
-  }, [newRootQuestion, loading, addRootNodeWithQuestion]); // 依赖 loading 和 addRootNodeWithQuestion
+  }, [rootNodes, convertToReactFlowElements]);
 
+  // 处理添加根节点
+  const handleAddRootClick = useCallback(async () => {
+    if (loading) return;
+    
+    const question = prompt('请输入中心主题:');
+    if (question && question.trim()) {
+      try {
+        await addRootNodeWithQuestion(question.trim());
+      } catch (error) {
+        console.error('[ERROR] 添加中心主题失败:', error);
+        alert(`添加中心主题失败: ${error.message || '未知错误'}`);
+      }
+    }
+  }, [loading, addRootNodeWithQuestion]);
+
+  // 处理节点变化
+  const onNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    [setNodes]
+  );
+
+  // 处理边变化
+  const onEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    [setEdges]
+  );
+
+  // 处理连接
+  const onConnect = useCallback(
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges]
+  );
 
   return (
     <div id="app">
       <header className="app-header">
         <h1>🧠 BrainTree</h1>
-        <p>智能对话树 - 探索思维的无限可能</p>
+        <p>智能思维导图 - 探索思维的无限可能</p>
       </header>
 
       <main className="app-main">
         <div className="tree-container">
-          {rootNodes.map(rootNode => (
-            <TreeNode
-              key={rootNode.id}
-              node={rootNode}
-              depth={0}
-            />
-          ))}
-
-          {rootNodes.length === 0 && (
+          {rootNodes.length > 0 ? (
+            <div className="react-flow-wrapper">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+                nodeTypes={nodeTypes}
+                fitView
+                fitViewOptions={{ padding: 0.5 }}
+                connectionMode="loose"
+                onNodeDragStop={() => {
+                  // 可选：保存位置到 localStorage
+                }}
+                nodesDraggable={true}
+                nodesConnectable={false}
+                elementsSelectable={true}
+              >
+                <Controls />
+                <MiniMap />
+                <Background variant="dots" gap={12} size={1} />
+              </ReactFlow>
+            </div>
+          ) : (
             <div className="empty-state">
-              <p>开始创建你的第一个对话分支吧！</p>
-              {/* 显示输入框而不是按钮 */}
-              {showAddRootInput ? (
-                <div className="input-section">
-                  <textarea
-                    ref={inputRef}
-                    value={newRootQuestion}
-                    onChange={(e) => setNewRootQuestion(e.target.value)}
-                    placeholder="请输入你的第一个问题..."
-                    className="input-textarea"
-                    rows="3"
-                    // 修改 onKeyDown 逻辑：Enter 换行，Ctrl/Cmd+Enter 发送
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { // 按下 Ctrl+Enter 或 Cmd+Enter (Mac)
-                        e.preventDefault(); // 防止换行
-                        sendRootQuestion(); // 调用发送函数
-                      }
-                      if (e.key === 'Escape') {
-                        if (!loading) { // 防止在加载时取消
-                          setShowAddRootInput(false);
-                          setNewRootQuestion(''); // Clear on cancel
-                        }
-                      }
-                    }}
-                    disabled={loading} // 禁用输入框，当 store 正在加载时
-                  />
-                  <div className="input-actions">
-                    {/* 直接绑定 sendRootQuestion */}
-                    <button
-                      onClick={sendRootQuestion}
-                      disabled={!newRootQuestion.trim() || loading}
-                      className="send-btn"
-                    >
-                      {loading ? '发送中...' : '发送'}
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (!loading) {
-                          setShowAddRootInput(false);
-                          setNewRootQuestion('');
-                        }
-                      }}
-                      className="cancel-btn"
-                      disabled={loading}
-                    >
-                      取消
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button onClick={handleAddRootClick} className="add-root-btn" disabled={loading}>
-                  + 添加根节点 {loading && '(处理中...)'}
-                </button>
-              )}
+              <p>开始创建你的第一个思维导图吧！</p>
+              <button 
+                onClick={handleAddRootClick} 
+                className="add-root-btn" 
+                disabled={loading}
+              >
+                + 添加中心主题
+              </button>
             </div>
           )}
         </div>
@@ -134,20 +196,20 @@ function App() {
           <div className="sidebar-section">
             <h3>控制面板</h3>
             <button onClick={resetTree} className="reset-btn" disabled={loading}>
-              重置对话树
+              重置思维导图
             </button>
           </div>
 
           <div className="sidebar-section">
             <h3>统计信息</h3>
-            <p>节点总数: {storeState.nodesCount}</p>
-            <p>根节点数: {storeState.rootNodesCount}</p>
-            <p>加载状态: {storeState.loading ? '是' : '否'}</p>
+            <p>节点总数: {rootNodes.reduce((count, node) => count + countNodes(node), 0)}</p>
+            <p>根节点数: {rootNodes.length}</p>
+            <p>加载状态: {loading ? '是' : '否'}</p>
 
             {debugMode && (
               <div className="debug-info">
                 <h4>调试信息</h4>
-                <p>Store 状态: {JSON.stringify(storeState, null, 2)}</p>
+                <p>Store 状态: {JSON.stringify({ nodes: rootNodes.length, loading }, null, 2)}</p>
                 <p>根节点: {JSON.stringify(rootNodes, null, 2)}</p>
               </div>
             )}
@@ -161,4 +223,13 @@ function App() {
   );
 }
 
-export default App
+// 辅助函数：计算节点总数
+const countNodes = (node) => {
+  let count = 1;
+  if (node.children) {
+    node.children.forEach(child => count += countNodes(child));
+  }
+  return count;
+};
+
+export default App;

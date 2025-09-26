@@ -18,7 +18,6 @@ const actionTypes = {
   ADD_ROOT_NODE: 'ADD_ROOT_NODE',
   DELETE_NODE: 'DELETE_NODE',
   RESET_TREE: 'RESET_TREE',
-  // ... 其他 action types
 };
 
 // --- 3. 定义 Reducer ---
@@ -33,53 +32,43 @@ const conversationReducer = (state, action) => {
     case actionTypes.ADD_NODE:
       const { node, parentId } = action.payload;
 
-      // --- 修正逻辑：确保不可变性 ---
       const addNodeToTree = (nodes) => {
         for (let i = 0; i < nodes.length; i++) {
           const current = nodes[i];
           if (current.id === parentId) {
-            // 找到父节点，创建父节点的副本，并更新其 children
             const updatedParent = {
               ...current,
-              children: [...(current.children || []), node] // 创建新 children 数组
+              children: [...(current.children || []), node]
             };
-            // 返回新数组，其中父节点被替换为更新后的副本
             return [...nodes.slice(0, i), updatedParent, ...nodes.slice(i + 1)];
           }
           if (current.children) {
-            // 递归处理子节点
             const updatedChildren = addNodeToTree(current.children);
             if (updatedChildren) {
-              // 如果子树中有节点被更新，则创建当前节点的副本
               const updatedCurrent = {
                 ...current,
                 children: updatedChildren
               };
-              // 返回新数组，其中当前节点被替换为更新后的副本
               return [...nodes.slice(0, i), updatedCurrent, ...nodes.slice(i + 1)];
             }
           }
         }
-        return null; // 未找到
+        return null;
       };
 
       let newRootNodes = [...state.rootNodes];
       let newNodes = [...state.nodes, node];
 
       if (parentId === null) {
-        newRootNodes = [...newRootNodes, node]; // 添加根节点
+        newRootNodes = [...newRootNodes, node];
       } else {
         const updatedRootNodes = addNodeToTree(newRootNodes);
         if (updatedRootNodes) {
           newRootNodes = updatedRootNodes;
         } else {
-          // 如果在 rootNodes 中没找到，尝试在所有 nodes 中找（处理孤儿节点情况）
           const updatedAllNodes = addNodeToTree(newNodes);
           if (updatedAllNodes) {
             newNodes = updatedAllNodes;
-          } else {
-            console.warn('[WARN] Parent node not found in tree structure, adding to all nodes.');
-            newNodes = [...newNodes, node]; // 再次添加，虽然上面已经添加过了，但为了逻辑完整性
           }
         }
       }
@@ -94,7 +83,7 @@ const conversationReducer = (state, action) => {
     case actionTypes.DELETE_NODE:
       const { nodeId } = action.payload;
       const nodeToDelete = state.nodes.find(n => n.id === nodeId);
-      if (!nodeToDelete) return state; // Node not found, return current state
+      if (!nodeToDelete) return state;
 
       const deleteAllChildren = (n) => {
         if (n.children) {
@@ -105,26 +94,23 @@ const conversationReducer = (state, action) => {
       let updatedNodes = state.nodes.filter(n => n.id !== nodeId);
       deleteAllChildren(nodeToDelete);
 
-      // --- 修正删除逻辑：确保不可变性 ---
       const removeFromParent = (nodes) => {
         let foundAndRemoved = false;
         const newNodesArray = nodes.map(node => {
           if (node.children) {
             const newChildren = node.children.filter(child => child.id !== nodeId);
             if (newChildren.length !== node.children.length) {
-              foundAndRemoved = true; // 标记找到了并移除了
-              return { ...node, children: newChildren }; // 返回更新后的节点副本
+              foundAndRemoved = true;
+              return { ...node, children: newChildren };
             }
-            // 递归处理子节点
             const updatedChildren = removeFromParent(node.children);
             if (updatedChildren) {
-              foundAndRemoved = true; // 标记找到了并移除了
-              return { ...node, children: updatedChildren }; // 返回更新后的节点副本
+              foundAndRemoved = true;
+              return { ...node, children: updatedChildren };
             }
           }
-          return node; // 返回原节点
+          return node;
         });
-        // 只有在确实移除了节点时才返回新数组
         return foundAndRemoved ? newNodesArray : null;
       };
 
@@ -173,7 +159,7 @@ export const ConversationProvider = ({ children }) => {
     console.log('[DEBUG] 添加子节点:', { parentId, question });
     dispatch({ type: actionTypes.SET_LOADING, payload: true });
     try {
-      const context = buildContextFromFrontend(state.nodes, parentId); // Pass nodes as argument
+      const context = buildContextFromFrontend(state.nodes, parentId);
       console.log('[DEBUG] 构建的上下文:', context);
 
       const response = await axios.post('/api/chat', {
@@ -194,7 +180,7 @@ export const ConversationProvider = ({ children }) => {
 
       console.log('[DEBUG] 创建的新节点:', newNode);
       dispatch({ type: actionTypes.ADD_NODE, payload: { node: newNode, parentId } });
-      saveTreeToLocalStorage(state.nodes, state.rootNodes); // Pass state to save function
+      saveTreeToLocalStorage(state.nodes, state.rootNodes);
 
     } catch (error) {
       console.error('[ERROR] 添加子节点失败:', error);
@@ -206,104 +192,56 @@ export const ConversationProvider = ({ children }) => {
       } else {
         console.error('[ERROR] 其他错误:', error.message);
       }
-      throw error; // Re-throw to handle in component
+      throw error;
     } finally {
       dispatch({ type: actionTypes.SET_LOADING, payload: false });
     }
   };
 
-  const addRootNode = async () => {
-     console.log('[DEBUG] 开始添加根节点...');
-     const question = prompt('请输入根节点问题:'); // 保留原始的 prompt 版本
-     if (!question) {
-       console.log('[DEBUG] 用户取消了根节点创建');
-       return;
-     }
-
-     dispatch({ type: actionTypes.SET_LOADING, payload: true });
-     try {
-       console.log('[DEBUG] 发送根节点API请求...');
-       const response = await axios.post('/api/chat', {
-         question,
-         context: []
-       });
-       console.log('[DEBUG] 根节点API响应:', response.data);
-
-       const answer = response.data.answer;
-       const newNode = {
-         id: Date.now().toString(),
-         question,
-         answer,
-         children: [],
-         parent_id: null,
-         created_at: new Date().toISOString()
-       };
-
-       console.log('[DEBUG] 创建的根节点:', newNode);
-       dispatch({ type: actionTypes.ADD_ROOT_NODE, payload: newNode });
-       saveTreeToLocalStorage(state.nodes, state.rootNodes);
-
-     } catch (error) {
-       console.error('[ERROR] 添加根节点失败:', error);
-       if (error.response) {
-         console.error('[ERROR] API错误详情:', error.response.data);
-         console.error('[ERROR] API错误状态:', error.response.status);
-       } else if (error.request) {
-         console.error('[ERROR] 请求错误:', error.request);
-       } else {
-         console.error('[ERROR] 其他错误:', error.message);
-       }
-       throw error; // Re-throw to handle in component
-     } finally {
-       dispatch({ type: actionTypes.SET_LOADING, payload: false });
-     }
-  };
-
-  // --- 添加新的 Action: addRootNodeWithQuestion ---
   const addRootNodeWithQuestion = async (question) => {
-     console.log('[DEBUG] 开始添加根节点 with question:', question);
-     if (!question) {
-       console.log('[DEBUG] 问题为空，取消根节点创建');
-       return;
-     }
+    console.log('[DEBUG] 开始添加根节点 with question:', question);
+    if (!question) {
+      console.log('[DEBUG] 问题为空，取消根节点创建');
+      return;
+    }
 
-     dispatch({ type: actionTypes.SET_LOADING, payload: true });
-     try {
-       console.log('[DEBUG] 发送根节点API请求...');
-       const response = await axios.post('/api/chat', {
-         question, // 使用传入的 question
-         context: []
-       });
-       console.log('[DEBUG] 根节点API响应:', response.data);
+    dispatch({ type: actionTypes.SET_LOADING, payload: true });
+    try {
+      console.log('[DEBUG] 发送根节点API请求...');
+      const response = await axios.post('/api/chat', {
+        question,
+        context: []
+      });
+      console.log('[DEBUG] 根节点API响应:', response.data);
 
-       const answer = response.data.answer;
-       const newNode = {
-         id: Date.now().toString(),
-         question,
-         answer,
-         children: [],
-         parent_id: null,
-         created_at: new Date().toISOString()
-       };
+      const answer = response.data.answer;
+      const newNode = {
+        id: Date.now().toString(),
+        question,
+        answer,
+        children: [],
+        parent_id: null,
+        created_at: new Date().toISOString()
+      };
 
-       console.log('[DEBUG] 创建的根节点:', newNode);
-       dispatch({ type: actionTypes.ADD_ROOT_NODE, payload: newNode });
-       saveTreeToLocalStorage(state.nodes, state.rootNodes);
+      console.log('[DEBUG] 创建的根节点:', newNode);
+      dispatch({ type: actionTypes.ADD_ROOT_NODE, payload: newNode });
+      saveTreeToLocalStorage(state.nodes, state.rootNodes);
 
-     } catch (error) {
-       console.error('[ERROR] 添加根节点失败:', error);
-       if (error.response) {
-         console.error('[ERROR] API错误详情:', error.response.data);
-         console.error('[ERROR] API错误状态:', error.response.status);
-       } else if (error.request) {
-         console.error('[ERROR] 请求错误:', error.request);
-       } else {
-         console.error('[ERROR] 其他错误:', error.message);
-       }
-       throw error; // Re-throw to handle in component
-     } finally {
-       dispatch({ type: actionTypes.SET_LOADING, payload: false });
-     }
+    } catch (error) {
+      console.error('[ERROR] 添加根节点失败:', error);
+      if (error.response) {
+        console.error('[ERROR] API错误详情:', error.response.data);
+        console.error('[ERROR] API错误状态:', error.response.status);
+      } else if (error.request) {
+        console.error('[ERROR] 请求错误:', error.request);
+      } else {
+        console.error('[ERROR] 其他错误:', error.message);
+      }
+      throw error;
+    } finally {
+      dispatch({ type: actionTypes.SET_LOADING, payload: false });
+    }
   };
 
   const deleteNode = (nodeId) => {
@@ -318,10 +256,9 @@ export const ConversationProvider = ({ children }) => {
     localStorage.removeItem('bratree-tree');
   };
 
-  // Helper functions (same logic as Vue, just adapted)
-  const buildContextFromFrontend = (allNodes, nodeId) => { // Take nodes as argument
+  const buildContextFromFrontend = (allNodes, nodeId) => {
     console.log('[DEBUG] 构建上下文，节点ID:', nodeId);
-    const path = getPathToNode(allNodes, nodeId); // Pass nodes to helper
+    const path = getPathToNode(allNodes, nodeId);
     const context = path.map(node => ({
       question: node.question,
       answer: node.answer
@@ -330,7 +267,7 @@ export const ConversationProvider = ({ children }) => {
     return context;
   };
 
-  const getPathToNode = (allNodes, nodeId) => { // Take nodes as argument
+  const getPathToNode = (allNodes, nodeId) => {
     console.log('[DEBUG] 获取到节点的路径:', nodeId);
     const findPath = (nodes, targetId, currentPath = []) => {
       for (const node of nodes) {
@@ -344,7 +281,7 @@ export const ConversationProvider = ({ children }) => {
       return [];
     };
 
-    for (const rootNode of state.rootNodes) { // Use state.rootNodes here to start search
+    for (const rootNode of state.rootNodes) {
       const path = findPath([rootNode], nodeId);
       if (path.length > 0) {
         console.log('[DEBUG] 找到路径:', path);
@@ -355,7 +292,7 @@ export const ConversationProvider = ({ children }) => {
     return [];
   };
 
-  const saveTreeToLocalStorage = (nodes, rootNodes) => { // Take state as argument
+  const saveTreeToLocalStorage = (nodes, rootNodes) => {
     const treeData = {
       nodes: nodes,
       root_nodes: rootNodes
@@ -366,17 +303,15 @@ export const ConversationProvider = ({ children }) => {
 
   useEffect(() => {
     loadTree();
-  }, []); // Load tree on component mount
+  }, []);
 
   const value = {
-    ...state, // Expose state
-    // Expose actions
+    ...state,
     addChildNode,
-    addRootNode,
-    addRootNodeWithQuestion, // 暴露新的 action
+    addRootNodeWithQuestion,
     deleteNode,
     resetTree,
-    loadTree // Might be useful for manual reload
+    loadTree
   };
 
   return (

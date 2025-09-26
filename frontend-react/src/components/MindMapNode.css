@@ -1,45 +1,28 @@
-/* src/components/TreeNode.css */
-/* 为了模拟 scoped 样式，我们使用 .tree-node 作为顶级容器前缀 */
-.tree-node {
-  margin: 0.5rem 0;
+/* src/components/MindMapNode.css */
+.mind-map-node {
+  padding: 0.75rem;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
-  overflow: hidden;
   background: white;
-  transition: box-shadow 0.2s;
-  position: relative;
-  min-width: 300px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.tree-node:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.node-header {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  min-width: 300px;  /* 增加最小宽度 */
+  max-width: 500px;  /* 增加最大宽度 */
+  font-size: 0.95rem;
+  line-height: 1.5;
   display: flex;
-  align-items: flex-start;
-  padding: 0.75rem 1rem;
-  background: #f8f9fa;
-  cursor: pointer;
-  border-bottom: 1px solid #eee;
-  min-height: 60px;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
 }
 
 .node-content {
-  flex: 1;
-  margin-right: 0.5rem;
-}
-
-.node-body {
-  flex: 1;
+  margin-bottom: 0.5rem;
+  overflow: auto;
 }
 
 .question, .answer {
   margin: 0.25rem 0;
-  line-height: 1.5;
-  word-wrap: break-word;
-  padding: 0.25rem 0;
   display: flex;
   align-items: flex-start;
 }
@@ -57,12 +40,14 @@
 .markdown-wrapper {
   flex: 1;
   min-width: 0;
+  overflow: auto;
 }
 
 .node-actions {
   display: flex;
   gap: 0.25rem;
-  flex-shrink: 0;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
 }
 
 .add-btn, .delete-btn {
@@ -101,9 +86,9 @@
 }
 
 .input-section {
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0;
+  margin-top: 0.5rem;
   border-top: 1px solid #eee;
-  background: #fafafa;
 }
 
 .input-textarea {
@@ -157,54 +142,4 @@
 .send-btn:disabled, .cancel-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-}
-
-.children {
-  padding-left: 1.5rem;
-  position: relative;
-}
-
-.children::before {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: #e0e0e0;
-  pointer-events: none;
-}
-
-/* 为不同深度的节点设置不同的样式 */
-.tree-node.depth-0 {
-  border: 2px solid #007bff;
-  background: #f0f8ff;
-}
-
-.tree-node.depth-1 {
-  border-color: #66b3ff;
-}
-
-.tree-node.depth-2 {
-  border-color: #99ccff;
-}
-
-.tree-node.depth-3 {
-  border-color: #cce5ff;
-}
-
-/* 响应式设计 */
-@media (max-width: 768px) {
-  .tree-node {
-    margin: 0.25rem 0;
-    min-width: 250px;
-  }
-
-  .node-header {
-    padding: 0.5rem 0.75rem;
-  }
-
-  .input-section {
-    padding: 0.5rem 0.75rem;
-  }
 }
