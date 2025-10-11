@@ -47,6 +47,11 @@ uvicorn backend.src.main:app --reload --port 8000
 
 使用pnpm管理环境
 ```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm --version
+nvm install 20
+nvm use 20
+
 # 安装pnpm(如果尚未安装)
 npm install -g pnpm
 pnpm --version
