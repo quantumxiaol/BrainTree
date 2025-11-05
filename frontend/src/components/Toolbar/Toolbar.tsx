@@ -10,6 +10,7 @@ interface ToolbarProps {
   onAddDrawing?: (position?: { x: number; y: number }) => void;
   onAddShape?: (shapeType: 'rectangle' | 'circle' | 'triangle' | 'arrow', position?: { x: number; y: number }) => void;
   onAddMedia?: (file: File, position?: { x: number; y: number }) => void;
+  onArrange?: () => void; // 整理节点布局
   nodeCount: number;
 }
 
@@ -34,6 +35,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onAddDrawing,
   onAddShape,
   onAddMedia,
+  onArrange,
 }) => {
   const [showGraphicPicker, setShowGraphicPicker] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -206,6 +208,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onChange={handleFileChange}
           />
         </div>
+
+        {/* 整理功能 */}
+        {onArrange && (
+          <>
+            <div className="toolbar-divider"></div>
+            <div className="toolbar-section">
+              <button
+                className="tool-btn arrange-btn"
+                onClick={onArrange}
+                title="自动整理节点布局"
+              >
+                <span className="tool-icon">✨</span>
+                <span className="tool-label">整理</span>
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

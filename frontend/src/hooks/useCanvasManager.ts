@@ -1,5 +1,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import type { ConversationCanvas, AnyCanvasNode, QuestionNode } from '../types/conversation';
+import { autoLayoutNodes } from '../utils/autoLayout';
 
 /**
  * 画布管理Hook
@@ -616,6 +617,33 @@ export const useCanvasManager = () => {
     [currentNodes, expandedNodeId]
   );
 
+  // 自动整理节点布局
+  const arrangeNodes = useCallback(() => {
+    if (!activeCanvasId || currentNodes.length === 0) return;
+
+    // 计算新的布局
+    const newPositions = autoLayoutNodes(currentNodes);
+
+    // 批量更新所有节点的位置
+    setCanvases((prev) =>
+      prev.map((canvas) => {
+        if (canvas.id !== activeCanvasId) return canvas;
+
+        return {
+          ...canvas,
+          nodes: canvas.nodes.map((node) => {
+            const newPos = newPositions.get(node.id);
+            if (newPos) {
+              return { ...node, position: newPos, updatedAt: Date.now() };
+            }
+            return node;
+          }),
+          updatedAt: Date.now(),
+        };
+      })
+    );
+  }, [activeCanvasId, currentNodes]);
+
   return {
     canvases,
     activeCanvasId,
@@ -646,5 +674,6 @@ export const useCanvasManager = () => {
     disconnectNode,
     expandNode,
     closeDetail,
+    arrangeNodes,
   };
 };

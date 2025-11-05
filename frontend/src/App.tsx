@@ -33,6 +33,7 @@ function App() {
     selectNode,
     connectNodes,
     disconnectNode,
+    arrangeNodes,
   } = useCanvasManager();
 
   const [showDialogueInput, setShowDialogueInput] = useState(false);
@@ -380,6 +381,7 @@ function App() {
           onAddDrawing={handleAddDrawing}
           onAddShape={handleAddShape}
           onAddMedia={handleAddMedia}
+          onArrange={arrangeNodes}
           nodeCount={currentNodes.length}
         />
       )}
