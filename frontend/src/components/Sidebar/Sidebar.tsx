@@ -8,6 +8,8 @@ interface SidebarProps {
   onCanvasSelect: (canvasId: string) => void;
   onCanvasDelete: (canvasId: string) => void;
   onCanvasAdd: () => void;
+  onExportData?: () => void;
+  onImportData?: (file: File) => void;
 }
 
 /**
@@ -20,8 +22,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onCanvasSelect,
   onCanvasDelete,
   onCanvasAdd,
+  onExportData,
+  onImportData,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   // 按创建时间倒序排列
   const sortedCanvases = [...canvases].sort((a, b) => b.createdAt - a.createdAt);
@@ -34,6 +39,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
     e.stopPropagation();
     if (window.confirm('确定要删除这个对话空间吗？')) {
       onCanvasDelete(canvasId);
+    }
+  };
+
+  const handleExportClick = () => {
+    if (onExportData) {
+      onExportData();
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onImportData) {
+      onImportData(file);
+    }
+    // 清空输入，以便可以重复选择相同文件
+    if (e.target) {
+      e.target.value = '';
     }
   };
 
@@ -113,6 +139,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span>➕</span>
             <span>新建对话空间</span>
           </button>
+          
+          {/* 数据导入/导出 */}
+          {(onExportData || onImportData) && (
+            <div className="sidebar-actions">
+              {onExportData && (
+                <button 
+                  className="sidebar-action-btn"
+                  onClick={handleExportClick}
+                  title="导出所有画布数据"
+                >
+                  <span>💾</span>
+                  <span>导出</span>
+                </button>
+              )}
+              {onImportData && (
+                <>
+                  <button 
+                    className="sidebar-action-btn"
+                    onClick={handleImportClick}
+                    title="导入画布数据"
+                  >
+                    <span>📂</span>
+                    <span>导入</span>
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".json"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                  />
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

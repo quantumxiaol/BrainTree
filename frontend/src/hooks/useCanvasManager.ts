@@ -1,16 +1,38 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { ConversationCanvas, AnyCanvasNode, QuestionNode } from '../types/conversation';
 import { autoLayoutNodes } from '../utils/autoLayout';
+import { saveCanvases, loadCanvases, exportData, importData } from '../utils/storage';
 
 /**
  * 画布管理Hook
  * 管理多个画布及其内部的对话节点
+ * 支持本地持久化存储
  */
 export const useCanvasManager = () => {
-  const [canvases, setCanvases] = useState<ConversationCanvas[]>([]);
-  const [activeCanvasId, setActiveCanvasId] = useState<string | null>(null);
+  // 从 localStorage 加载初始数据
+  const loadInitialData = () => {
+    const savedData = loadCanvases();
+    if (savedData) {
+      return savedData;
+    }
+    return { canvases: [], activeCanvasId: null };
+  };
+
+  const initialData = loadInitialData();
+  const [canvases, setCanvases] = useState<ConversationCanvas[]>(initialData.canvases);
+  const [activeCanvasId, setActiveCanvasId] = useState<string | null>(initialData.activeCanvasId);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [expandedNodeId, setExpandedNodeId] = useState<string | null>(null);
+
+  // 自动保存到 localStorage
+  useEffect(() => {
+    // 延迟保存，避免频繁写入
+    const timer = setTimeout(() => {
+      saveCanvases(canvases, activeCanvasId);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [canvases, activeCanvasId]);
 
   // 获取当前激活的画布
   const activeCanvas = useMemo(
@@ -644,6 +666,38 @@ export const useCanvasManager = () => {
     );
   }, [activeCanvasId, currentNodes]);
 
+  // 导出所有画布数据
+  const handleExportData = useCallback(() => {
+    exportData(canvases);
+  }, [canvases]);
+
+  // 导入画布数据
+  const handleImportData = useCallback(async (file: File) => {
+    try {
+      const importedCanvases = await importData(file);
+      
+      // 合并导入的画布（避免 ID 冲突）
+      const existingIds = new Set(canvases.map(c => c.id));
+      const newCanvases = importedCanvases.map(canvas => {
+        if (existingIds.has(canvas.id)) {
+          // 如果 ID 冲突，生成新 ID
+          return {
+            ...canvas,
+            id: `canvas-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            title: `${canvas.title} (导入)`,
+          };
+        }
+        return canvas;
+      });
+      
+      setCanvases(prev => [...prev, ...newCanvases]);
+      alert(`成功导入 ${newCanvases.length} 个画布！`);
+    } catch (error) {
+      console.error('导入失败:', error);
+      alert('导入失败！请检查文件格式。');
+    }
+  }, [canvases]);
+
   return {
     canvases,
     activeCanvasId,
@@ -675,5 +729,7 @@ export const useCanvasManager = () => {
     expandNode,
     closeDetail,
     arrangeNodes,
+    exportData: handleExportData,
+    importData: handleImportData,
   };
 };

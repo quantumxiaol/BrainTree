@@ -34,6 +34,8 @@ function App() {
     connectNodes,
     disconnectNode,
     arrangeNodes,
+    exportData,
+    importData,
   } = useCanvasManager();
 
   const [showDialogueInput, setShowDialogueInput] = useState(false);
@@ -367,6 +369,8 @@ function App() {
           onCanvasSelect={handleSwitchCanvas}
           onCanvasDelete={handleDeleteCanvas}
           onCanvasAdd={handleCreateCanvas}
+          onExportData={exportData}
+          onImportData={importData}
         />
       </div>
 
