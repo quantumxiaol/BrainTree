@@ -1,0 +1,366 @@
+.conversation-canvas-container {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  position: relative;
+}
+
+.canvas-node-wrapper {
+  padding: 4px;
+}
+
+/* ReactFlow核心样式覆盖 */
+.react-flow {
+  background: transparent;
+}
+
+/* 完全禁用ReactFlow节点选中样式 */
+.react-flow__node {
+  pointer-events: all !important;
+}
+
+/* Section 节点永远在最底层 */
+.react-flow__node:has(.section-card) {
+  z-index: -1 !important;
+}
+
+.react-flow__node.selected:has(.section-card),
+.react-flow__node.dragging:has(.section-card) {
+  z-index: -1 !important;
+}
+
+.react-flow__node.selected,
+.react-flow__node:focus,
+.react-flow__node:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.react-flow__node.selected::before,
+.react-flow__node:focus::before,
+.react-flow__node:focus-visible::before {
+  display: none !important;
+}
+
+.react-flow__node.selected .canvas-node-wrapper,
+.react-flow__node:focus .canvas-node-wrapper,
+.react-flow__node:focus-visible .canvas-node-wrapper {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+.react-flow__node.selected .conversation-card,
+.react-flow__node:focus .conversation-card,
+.react-flow__node:focus-visible .conversation-card {
+  opacity: 1 !important;
+  background: white !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* ReactFlow边的样式 */
+.react-flow__edge {
+  cursor: pointer;
+}
+
+.react-flow__edge-path {
+  stroke: #667eea;
+  stroke-width: 2.5;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: #764ba2;
+  stroke-width: 3.5;
+}
+
+.react-flow__edge.animated .react-flow__edge-path {
+  stroke-dasharray: 8 4;
+  animation: dashdraw 0.8s linear infinite;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge.selectable:focus .react-flow__edge-path {
+  stroke: #764ba2;
+  stroke-width: 3.5;
+  stroke-dasharray: none;
+  filter: drop-shadow(0 0 4px rgba(102, 126, 234, 0.5));
+}
+
+.react-flow__edge-text {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* 连接线（拖拽时的临时线） */
+.react-flow__connection-path {
+  stroke: #667eea;
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  animation: dashdraw 0.5s linear infinite;
+}
+
+/* 节点连接点 */
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #667eea;
+  border: 2px solid white;
+  transition: all 0.2s ease;
+}
+
+.react-flow__handle:hover {
+  width: 16px;
+  height: 16px;
+  background: #764ba2;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.6);
+}
+
+.react-flow__handle-connecting {
+  background: #764ba2;
+  transform: scale(1.3);
+}
+
+.react-flow__handle-valid {
+  background: #4CAF50;
+}
+
+.react-flow__handle-invalid {
+  background: #f44336;
+}
+
+/* 箭头标记样式 */
+.react-flow__arrowhead {
+  fill: #667eea;
+}
+
+.react-flow__edge:hover .react-flow__arrowhead,
+.react-flow__edge.selected .react-flow__arrowhead {
+  fill: #764ba2;
+}
+
+/* 边标签样式优化 */
+.react-flow__edge-textbg {
+  fill: white;
+  fill-opacity: 0.9;
+}
+
+.react-flow__edge:hover .react-flow__edge-textbg {
+  fill: #f0f0f0;
+}
+
+/* 控制面板样式 */
+.react-flow__controls {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: white;
+  border-bottom: 1px solid #eee;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls-button:hover {
+  background: #f5f5f5;
+}
+
+/* 小地图样式 */
+.react-flow__minimap {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 背景点样式 */
+.react-flow__background {
+  opacity: 0.5;
+}
+
+/* 框选样式 */
+.react-flow__selection {
+  background: rgba(102, 126, 234, 0.08);
+  border: 2px dashed #667eea;
+}
+
+.react-flow__nodesselection-rect {
+  background: rgba(102, 126, 234, 0.08);
+  border: 2px dashed #667eea;
+}
+
+/* 动画 */
+@keyframes dashdraw {
+  from {
+    stroke-dashoffset: 12;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* 绘画覆盖层 */
+.drawing-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  cursor: crosshair;
+  pointer-events: all;
+}
+
+/* 绘画工具栏覆盖层 */
+.drawing-toolbar-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1001;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  animation: slideInRight 0.3s ease;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.drawing-toolbar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.drawing-tools-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.drawing-tool-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  min-width: 45px;
+}
+
+.drawing-color-input {
+  width: 48px;
+  height: 36px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawing-color-input:hover {
+  border-color: #667eea;
+  transform: scale(1.05);
+}
+
+.drawing-stroke-input {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e5e7eb;
+  outline: none;
+  cursor: pointer;
+  min-width: 100px;
+}
+
+.drawing-stroke-input::-webkit-slider-thumb {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawing-stroke-input::-webkit-slider-thumb:hover {
+  background: #5568d3;
+  transform: scale(1.2);
+}
+
+.drawing-stroke-input::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #667eea;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.drawing-stroke-input::-moz-range-thumb:hover {
+  background: #5568d3;
+  transform: scale(1.2);
+}
+
+.drawing-stroke-display {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+  min-width: 40px;
+  text-align: right;
+}
+
+.drawing-clear-button,
+.drawing-exit-button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.drawing-clear-button {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.drawing-clear-button:hover {
+  background: #fecaca;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+}
+
+.drawing-exit-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.drawing-exit-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.drawing-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+}
