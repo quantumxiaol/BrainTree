@@ -203,6 +203,50 @@
   color: #6a737d;
 }
 
+/* 数学公式样式 */
+.markdown-renderer .katex {
+  font-size: 1.1em;
+}
+
+.markdown-renderer .katex-display {
+  margin: 20px 0;
+  padding: 16px;
+  background: rgba(102, 126, 234, 0.03);
+  border-radius: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.markdown-renderer .katex-display > .katex {
+  text-align: center;
+  display: block;
+}
+
+/* 行内公式样式 */
+.markdown-renderer p .katex,
+.markdown-renderer li .katex {
+  margin: 0 2px;
+}
+
+/* 公式滚动条美化 */
+.markdown-renderer .katex-display::-webkit-scrollbar {
+  height: 6px;
+}
+
+.markdown-renderer .katex-display::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.markdown-renderer .katex-display::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 3px;
+}
+
+.markdown-renderer .katex-display::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
+}
+
 /* 响应式设计 */
 @media (max-width: 768px) {
   .markdown-renderer {

@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import rehypeHighlight from 'rehype-highlight';
+import rehypeKatex from 'rehype-katex';
 import 'highlight.js/styles/github-dark.css';
+import 'katex/dist/katex.min.css';
 import './MarkdownRenderer.css';
 
 interface MarkdownRendererProps {
@@ -12,7 +15,10 @@ interface MarkdownRendererProps {
 
 /**
  * Markdown渲染器组件
- * 支持GFM扩展和代码高亮
+ * 支持：
+ * - GFM（GitHub Flavored Markdown）扩展
+ * - 代码高亮
+ * - LaTeX 数学公式（行内：$...$，块级：$$...$$）
  */
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   content,
@@ -21,8 +27,8 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   return (
     <div className={`markdown-renderer ${className}`}>
       <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeKatex, rehypeHighlight]}
         components={{
           // 自定义代码块样式
           code(props) {
