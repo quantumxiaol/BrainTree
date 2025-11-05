@@ -1,0 +1,446 @@
+/*
+ * Z-index 层级结构（从高到低）：
+ * 20: 连接点 (custom-handle-output)
+ * 15: 输入端 (custom-handle-input) 
+ * 12: 添加按钮 (card-add-child-btn)
+ * 10: 删除按钮 (card-delete-btn)
+ * 2:  卡片内容 (card-content)
+ * 1:  卡片本身 (conversation-card)
+ */
+
+.conversation-card {
+  position: relative;
+  min-width: 240px;
+  max-width: 280px;
+  background: rgba(230, 235, 255, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12),
+              0 1px 4px rgba(102, 126, 234, 0.06),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  z-index: 1; /* 确保卡片在最底层 */
+}
+
+.conversation-card:hover {
+  border-color: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2),
+              0 2px 8px rgba(102, 126, 234, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transform: translateY(-3px);
+  background: rgba(230, 235, 255, 0.95);
+}
+
+.conversation-card.selected {
+  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(215, 225, 255, 0.9);
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3),
+              0 2px 12px rgba(102, 126, 234, 0.2),
+              inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+/* 快速创建子节点按钮 */
+.card-add-child-btn {
+  position: absolute;
+  top: 50%;
+  right: -52px;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.3);
+  backdrop-filter: blur(20px);
+  color: rgba(102, 126, 234, 1);
+  cursor: pointer;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 12; /* 高于删除按钮，但低于连接点 */
+  line-height: 1;
+}
+
+/* 扩大热区 - 增加到16px */
+.card-add-child-btn::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 50%;
+  /* 扩大点击热区，但不可见 */
+}
+
+.card-add-child-btn:hover {
+  transform: translateY(-50%) scale(1.15);
+  background: rgba(102, 126, 234, 0.45);
+  box-shadow: 0 6px 24px rgba(102, 126, 234, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.card-add-child-btn:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* 卡片删除按钮 */
+.card-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(255, 71, 87, 0.3);
+  backdrop-filter: blur(20px);
+  color: rgba(255, 71, 87, 1);
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(255, 71, 87, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+  line-height: 1;
+}
+
+.card-delete-btn:hover {
+  transform: scale(1.15);
+  background: rgba(255, 71, 87, 0.5);
+  box-shadow: 0 4px 16px rgba(255, 71, 87, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.card-delete-btn:active {
+  transform: scale(0.95);
+}
+
+/* 卡片内容 */
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  z-index: 2; /* 卡片内容在卡片底层之上，但在所有按钮之下 */
+}
+
+.card-question,
+.card-answer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.question-label,
+.answer-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(102, 126, 234, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.12);
+  border-radius: 8px;
+  display: inline-block;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 1px 3px rgba(102, 126, 234, 0.1);
+}
+
+.question-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(30, 41, 59, 0.95);
+  line-height: 1.6;
+  margin: 0;
+  margin-top: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.answer-text {
+  font-size: 13px;
+  color: rgba(71, 85, 105, 0.9);
+  line-height: 1.6;
+  margin: 0;
+  margin-top: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 待对话状态 */
+.card-pending {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  gap: 8px;
+}
+
+.pending-icon {
+  font-size: 32px;
+  opacity: 0.6;
+  animation: float 2s ease-in-out infinite;
+}
+
+.card-pending p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(100, 116, 139, 0.7);
+  font-style: italic;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* 对话主题 */
+.card-title {
+  margin: 0;
+}
+
+.card-title h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(30, 41, 59, 0.95);
+  line-height: 1.4;
+}
+
+/* 对话概述 */
+.card-summary {
+  margin: 0;
+}
+
+.card-summary p {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(71, 85, 105, 0.85);
+  line-height: 1.6;
+}
+
+/* 加载状态 */
+.card-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(102, 126, 234, 0.9);
+  font-size: 13px;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.card-loading span::after {
+  content: '...';
+  animation: loadingDots 1.5s steps(4, end) infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% {
+    content: '.';
+  }
+  40% {
+    content: '..';
+  }
+  60%, 100% {
+    content: '...';
+  }
+}
+
+/* 卡片页脚 */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.card-time {
+  font-size: 11px;
+  color: rgba(100, 116, 139, 0.7);
+  font-weight: 500;
+}
+
+.card-type-badge {
+  font-size: 10px;
+  padding: 4px 10px;
+  background: rgba(102, 126, 234, 0.85);
+  color: white;
+  border-radius: 10px;
+  font-weight: 700;
+  border: 1px solid rgba(102, 126, 234, 0.3);
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.2);
+}
+
+/* ReactFlow Handle 现代化连接点样式 */
+.custom-handle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(102, 126, 234, 0.3);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 20 !important; /* 最高层级，确保可以拖拽 */
+  pointer-events: auto !important; /* 确保可以接收鼠标事件 */
+}
+
+/* 输入端（左侧） - 只接收连线 */
+.custom-handle-input {
+  left: -10px;
+  width: 14px;
+  height: 14px;
+  cursor: crosshair;
+  z-index: 15 !important; /* 低于输出端，但高于按钮 */
+}
+
+/* 左侧输入端不显示图标和tooltip */
+.custom-handle-input .handle-icon,
+.custom-handle-input .handle-tooltip {
+  display: none;
+}
+
+/* 输出端（右侧） - 拖拽创建 */
+.custom-handle-output {
+  right: -16px;
+  cursor: grab;
+  z-index: 20 !important; /* 最高层级，确保可以拖拽 */
+  /* 扩大实际可交互区域 */
+  min-width: 48px;
+  min-height: 48px;
+}
+
+/* 大幅扩大输出端的热区 - 比显示大小更大 */
+.custom-handle-output::before {
+  content: '';
+  position: absolute;
+  inset: -12px; /* 扩展12px，总热区约72px */
+  border-radius: 50%;
+  z-index: 1; /* 确保热区在按钮内容之上 */
+  /* 扩大拖拽热区，确保容易抓取 */
+}
+
+/* Handle内的图标 */
+.handle-icon {
+  color: rgba(102, 126, 234, 1);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 0.8;
+  letter-spacing: -2px;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  position: relative;
+  z-index: 2; /* 图标在热区之上 */
+  pointer-events: none; /* 图标不拦截鼠标事件 */
+}
+
+/* Tooltip提示 - 简化 */
+.handle-tooltip {
+  position: absolute;
+  right: 100%;
+  margin-right: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none; /* tooltip不拦截鼠标事件 */
+  transition: all 0.15s ease;
+  transform: translateX(5px);
+  z-index: 3; /* tooltip在最上层显示 */
+}
+
+/* 卡片悬停时显示连接点 */
+.conversation-card:hover .custom-handle {
+  opacity: 1;
+}
+
+/* 输出端显示图标 */
+.conversation-card:hover .custom-handle-output .handle-icon {
+  opacity: 0.8;
+}
+
+/* 输出端悬停效果 */
+.custom-handle-output:hover {
+  transform: scale(1.2); /* 增大悬停缩放 */
+  background: rgba(102, 126, 234, 0.45);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+.custom-handle-output:hover .handle-icon {
+  opacity: 1;
+}
+
+.custom-handle-output:hover .handle-tooltip {
+  opacity: 0.95;
+  transform: translateX(0);
+}
+
+/* 确保拖拽时保持大小和光标 */
+.custom-handle-output:active {
+  transform: scale(1.1);
+  cursor: grabbing;
+}
+
+/* 输入端悬停效果 - 简单放大 */
+.custom-handle-input:hover {
+  transform: scale(1.3);
+  background: rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* 连接时的激活状态 */
+.custom-handle.connecting,
+.custom-handle.react-flow__handle-connecting {
+  opacity: 1 !important;
+  transform: scale(1.3);
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+}

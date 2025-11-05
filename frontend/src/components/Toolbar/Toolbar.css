@@ -1,0 +1,190 @@
+.toolbar-wrapper {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  pointer-events: none;
+}
+
+.toolbar-container {
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 24px;
+  padding: 12px 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1),
+              0 2px 12px rgba(0, 0, 0, 0.05),
+              inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  pointer-events: auto;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(0, 0, 0, 0.1) 20%,
+    rgba(0, 0, 0, 0.1) 80%,
+    transparent
+  );
+}
+
+.tool-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 68px;
+}
+
+.tool-btn:hover {
+  background: rgba(255, 255, 255, 0.4);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.tool-btn:active {
+  transform: translateY(0);
+}
+
+.tool-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.tool-label {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 600;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.tool-btn:hover .tool-label {
+  color: rgba(0, 0, 0, 0.85);
+}
+
+/* 可拖拽按钮样式 */
+.tool-btn.draggable {
+  position: relative;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(102, 126, 234, 0.3);
+}
+
+.tool-btn.draggable:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+  border-color: rgba(102, 126, 234, 0.5);
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+}
+
+.tool-btn.draggable::after {
+  content: '⋮⋮';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 8px;
+  color: rgba(102, 126, 234, 0.5);
+  line-height: 0.8;
+  letter-spacing: -2px;
+}
+
+.tool-btn.draggable:active {
+  cursor: grabbing;
+  transform: scale(0.95);
+}
+
+/* 工具按钮包装器 */
+.tool-btn-wrapper {
+  position: relative;
+}
+
+/* 图形选择器 */
+.graphic-picker {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(40px) saturate(180%);
+  border-radius: 16px;
+  padding: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15),
+              0 2px 12px rgba(0, 0, 0, 0.08),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  animation: slideUp 0.2s ease;
+  z-index: 10;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.graphic-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.graphic-option:hover {
+  background: rgba(102, 126, 234, 0.1);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.graphic-preview {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.graphic-option span {
+  font-size: 11px;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 600;
+}
+
+.graphic-option:hover span {
+  color: rgba(102, 126, 234, 0.9);
+}

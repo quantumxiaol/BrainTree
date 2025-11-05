@@ -1,0 +1,192 @@
+.comment-card {
+  position: relative;
+}
+
+/* 折叠状态的图标 */
+.comment-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(102, 126, 234, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3),
+              inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.comment-icon:hover {
+  transform: scale(1.15);
+  background: rgba(102, 126, 234, 1);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4),
+              inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+.comment-icon.resolved {
+  background: rgba(34, 197, 94, 0.85);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.comment-icon.resolved:hover {
+  background: rgba(34, 197, 94, 1);
+}
+
+.resolved-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #22c55e;
+  color: white;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  border: 2px solid white;
+}
+
+/* 展开状态的内容卡片 */
+.comment-content-wrapper {
+  width: 320px;
+  background: rgba(230, 235, 255, 0.85);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.2),
+              0 2px 12px rgba(102, 126, 234, 0.1),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  overflow: hidden;
+  animation: commentExpand 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes commentExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: transparent;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.comment-author {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(30, 41, 59, 0.95);
+}
+
+.comment-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.comment-action-btn,
+.comment-delete-btn {
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 6px;
+  color: rgba(71, 85, 105, 0.8);
+  cursor: pointer;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.comment-action-btn:hover {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(102, 126, 234, 0.3);
+  color: rgba(30, 41, 59, 0.95);
+  transform: scale(1.1);
+}
+
+.comment-delete-btn:hover {
+  background: rgba(255, 71, 87, 0.2);
+  border-color: rgba(255, 71, 87, 0.3);
+  color: rgba(255, 71, 87, 1);
+}
+
+/* 编辑模式 */
+.comment-edit {
+  padding: 16px;
+  padding-bottom: 14px;
+}
+
+.comment-textarea {
+  width: 100%;
+  min-height: 120px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: rgba(30, 41, 59, 0.95);
+  resize: vertical;
+  outline: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 3px rgba(102, 126, 234, 0.08);
+}
+
+.comment-textarea::placeholder {
+  color: rgba(100, 116, 139, 0.5);
+}
+
+.comment-textarea:focus {
+  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1),
+              inset 0 1px 3px rgba(102, 126, 234, 0.05);
+}
+
+/* 保存/取消按钮已移除，使用自动保存 */
+
+/* 显示模式 */
+.comment-display {
+  padding: 16px 18px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(30, 41, 59, 0.9);
+  cursor: text;
+  min-height: 90px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.comment-display:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.comment-resolved-tag {
+  padding: 10px 18px;
+  background: rgba(34, 197, 94, 0.15);
+  color: rgba(22, 163, 74, 0.95);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
+  border-top: 1px solid rgba(34, 197, 94, 0.2);
+}
+

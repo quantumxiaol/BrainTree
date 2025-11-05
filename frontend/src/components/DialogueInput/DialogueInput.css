@@ -1,0 +1,192 @@
+.dialogue-input-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.dialogue-input-container {
+  width: 90%;
+  max-width: 560px;
+  background: rgba(230, 235, 255, 0.85);
+  backdrop-filter: blur(50px) saturate(180%);
+  -webkit-backdrop-filter: blur(50px) saturate(180%);
+  border-radius: 24px;
+  box-shadow: 0 16px 64px rgba(102, 126, 234, 0.3),
+              0 4px 16px rgba(102, 126, 234, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.dialogue-input-header {
+  padding: 28px 28px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(102, 126, 234, 0.15);
+  background: transparent;
+}
+
+.dialogue-input-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: rgba(30, 41, 59, 0.95);
+  margin: 0;
+}
+
+.dialogue-input-body {
+  padding: 28px;
+}
+
+.dialogue-textarea {
+  width: 100%;
+  padding: 18px 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  border-radius: 14px;
+  font-size: 15px;
+  font-family: inherit;
+  line-height: 1.6;
+  color: rgba(30, 41, 59, 0.95);
+  resize: vertical;
+  min-height: 140px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 16px;
+  box-shadow: inset 0 1px 3px rgba(102, 126, 234, 0.08);
+}
+
+.dialogue-textarea::placeholder {
+  color: rgba(100, 116, 139, 0.5);
+}
+
+.dialogue-textarea:focus {
+  outline: none;
+  border-color: rgba(102, 126, 234, 0.5);
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1),
+              inset 0 1px 3px rgba(102, 126, 234, 0.05);
+}
+
+.dialogue-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dialogue-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dialogue-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.dialogue-option span {
+  font-size: 14px;
+  color: rgba(30, 41, 59, 0.9);
+  font-weight: 500;
+}
+
+.llm-hint {
+  font-size: 12px;
+  color: rgba(100, 116, 139, 0.8);
+  padding-left: 26px;
+}
+
+.input-hint {
+  font-size: 12px;
+  color: rgba(100, 116, 139, 0.7);
+  text-align: right;
+  font-weight: 500;
+}
+
+.dialogue-input-footer {
+  padding: 20px 28px 28px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: transparent;
+  border-top: 1px solid rgba(102, 126, 234, 0.15);
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 13px 30px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cancel-btn {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  color: rgba(71, 85, 105, 0.9);
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(102, 126, 234, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.submit-btn {
+  background: rgba(102, 126, 234, 0.9);
+  border: 1px solid rgba(102, 126, 234, 1);
+  color: white;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.submit-btn:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 1);
+  border-color: rgba(102, 126, 234, 1);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
