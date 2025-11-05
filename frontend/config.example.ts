@@ -17,7 +17,7 @@ export const config: LLMConfig = {
   provider: 'openai',
   
   // API密钥
-  apiKey: 'yourkey',
+  apiKey: 'your_openai_api_key_here',
   
   // 可选: 自定义API地址（用于代理或自托管）
   apiUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',

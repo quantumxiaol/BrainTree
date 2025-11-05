@@ -30,6 +30,7 @@ uv lock
 uv sync
 
 cat .env.template > .env
+# 替换 your_openai_api_key_here
 ```
 
 运行后端服务器
@@ -56,13 +57,16 @@ nvm use 20
 npm install -g pnpm
 pnpm --version
 
-```
-
-```bash
 # 安装项目依赖
 cd frontend
 pnpm install
 
+```
+
+配置API(当前版本)
+```bash
+cat config.example.ts > config.ts
+# 替换 your_openai_api_key_here
 ```
 
 启动前端
